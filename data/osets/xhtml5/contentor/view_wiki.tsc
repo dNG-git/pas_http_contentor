@@ -1,0 +1,12 @@
+[if:content:objects != ]
+[block:content:objects]datalinker.ObjectsBox.render[/block]
+[/if]
+<article>
+<h1>[rewrite:safe_content]title[/rewrite]</h1>
+<p>[rewrite:formtags_content]content[/rewrite]</p>
+<p><small>[rewrite:l10n]pas_http_contentor_document_published_1[/rewrite]<strong><time>[rewrite:timestamp:date_time_long]time_published[/rewrite]</time></strong>[rewrite:l10n]pas_http_contentor_document_published_2[/rewrite][rewrite:user_linked]author[/rewrite][rewrite:l10n]pas_http_contentor_document_published_3[/rewrite]
+[if:content:time_updated != ]
+[rewrite:l10n]pas_http_contentor_document_updated_1[/rewrite]<strong><time>[rewrite:timestamp:date_time_short]time_updated[/rewrite]</time></strong>[rewrite:l10n]pas_http_contentor_document_updated_2[/rewrite]
+[/if]
+</small></p>
+</article>

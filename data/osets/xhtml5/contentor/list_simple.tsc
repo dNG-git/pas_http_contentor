@@ -1,0 +1,6 @@
+<h1>[rewrite:content]title[/rewrite]</h1>
+[if:content:objects != ]
+[block:content:objects]contentor.DocumentList.render_simple[/block]
+[/if][if:content:objects == ]
+<p>[rewrite:l10n]pas_http_contentor_category_empty[/rewrite]</p>
+[/if]
