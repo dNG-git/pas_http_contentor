@@ -81,7 +81,7 @@ Action for "list"
 		"""
 
 		cid = InputFilter.filter_file_path(self.request.get_dsd("ccid", ""))
-		page = int(InputFilter.filter_int(self.request.get_dsd("page", 1)))
+		page = int(InputFilter.filter_int(self.request.get_dsd("cpage", 1)))
 
 		L10n.init("pas_http_contentor")
 		L10n.init("pas_http_datalinker")
@@ -133,6 +133,17 @@ Action for "list"
 		self.response.init()
 		self.response.set_title(category_data['title'])
 		self.response.add_oset_content("contentor.list_{0}".format(category_data['entry_type']), content)
+
+		if (self.response.is_supported("html_canonical_url")):
+		#
+			self.response.set_html_canonical_url_parameters({
+				"m": "contentor",
+				"dsd": {
+					"ccid": cid,
+					"cpage": page
+				}
+			})
+		#
 	#
 
 	def execute_view(self):
@@ -190,7 +201,7 @@ Action for "view"
 			#
 		#
 
-		document_data = document.data_get("id", "id_main", "title", "time_sortable", "objects", "objects_sub_type", "content", "author_id", "author_ip", "time_published", "entry_type")
+		document_data = document.data_get("id", "id_main", "title", "time_sortable", "objects", "objects_sub_type", "content", "author_id", "author_ip", "time_published", "entry_type", "description")
 
 		content = {
 			"id": document_data['id'],
@@ -221,6 +232,19 @@ Action for "view"
 		self.response.set_title(document_data['title'])
 		self.response.set_last_modified(document_data['time_sortable'])
 		self.response.add_oset_content("contentor.view_{0}".format(document_data['entry_type']), content)
+
+		if (self.response.is_supported("html_canonical_url")):
+		#
+			self.response.set_html_canonical_url_parameters({
+				"m": "contentor",
+				"dsd": { "cdid": did }
+			})
+		#
+
+		if (
+			self.response.is_supported("html_page_description") and
+			document_data['description'] != ""
+		): self.response.set_html_page_description(document_data['description'])
 	#
 #
 

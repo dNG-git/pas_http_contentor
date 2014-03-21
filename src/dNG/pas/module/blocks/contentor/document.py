@@ -80,17 +80,18 @@ Action for "edit"
 
 		did = InputFilter.filter_file_path(self.request.get_dsd("cdid", ""))
 
-		source = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
-		target = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
+		source_iline = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
+		target_iline = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
 
-		source_iline = (Link.query_param_decode(source) if (source != "") else "m=contentor;dsd=cdid+{0}".format(did))
+		source = ""
 
-		if (target != ""): target_iline = Link.query_param_decode(target)
-		else:
-		#
-			target = source
-			target_iline = source_iline
-		#
+		if (source_iline == ""): source_iline= "m=contentor;dsd=cdid+{0}".format(Link.query_param_encode(did))
+		else: source = Link.query_param_encode(source_iline)
+
+		target = ""
+
+		if (target_iline != ""): target = Link.query_param_encode(target_iline)
+		else: target_iline = source_iline
 
 		L10n.init("pas_http_contentor")
 
@@ -102,22 +103,21 @@ Action for "edit"
 
 		Link.store_set("servicemenu", Link.TYPE_RELATIVE, L10n.get("core_back"), { "__query__": re.sub("\\[\\w+\\]", "", source_iline) }, image = "mini_default_back", priority = 2)
 
-		form = NamedLoader.get_instance("dNG.pas.data.xhtml.form.Input", True)
+		form = NamedLoader.get_instance("dNG.pas.data.xhtml.form.Processor")
 
-		document_data = document.data_get("title", "tag", "content")
+		document_data = document.data_get("title", "tag", "content", "description")
 
 		document_title = None
 		document_tag = None
+		document_description = None
 		document_content = None
 
-		if (is_save_mode):
-		#
-			form.set_input_available()
-		#
+		if (is_save_mode): form.set_input_available()
 		else:
 		#
 			document_title = document_data['title']
 			document_tag = document_data['tag']
+			document_description = document_data['description']
 			document_content = document_data['content']
 		#
 
@@ -140,6 +140,14 @@ Action for "edit"
 		})
 
 		form.entry_add_textarea({
+			"name": "cdescription",
+			"title": L10n.get("pas_http_contentor_document_description"),
+			"content": document_description,
+			"size": "s",
+			"max": 255
+		})
+
+		form.entry_add_textarea({
 			"name": "ccontent",
 			"title": L10n.get("pas_http_contentor_document_content"),
 			"content": document_content,
@@ -152,13 +160,15 @@ Action for "edit"
 		#
 			document_title = InputFilter.filter_control_chars(form.get_value("ctitle"))
 			document_tag = InputFilter.filter_control_chars(form.get_value("ctag"))
+			document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
 			document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
 			document.data_set(
 				time_sortable = time(),
 				title = FormTags.encode(document_title),
 				tag = document_tag,
-				content = FormTags.encode(document_content)
+				content = FormTags.encode(document_content),
+				description = document_description
 			)
 
 			document.save()
@@ -209,17 +219,30 @@ Action for "new"
 :since: v0.1.00
 		"""
 
+		# pylint: disable=star-args
+
 		cid = InputFilter.filter_file_path(self.request.get_dsd("ccid", ""))
 		did = InputFilter.filter_file_path(self.request.get_dsd("cdid", ""))
 
-		source = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
-		target = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
+		source_iline = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
+		target_iline = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
 
-		if (source != ""): source_iline = Link.query_param_decode(source)
-		elif (did != ""): source_iline = "m=contentor;dsd=cdid+{0}".format(did)
-		else: source_iline = "m=contentor;a=list;dsd=ccid+{0}".format(cid)
+		source = ""
 
-		target_iline = ("m=contentor;dsd=cdid+[id_d]" if (target == "") else Link.query_param_decode(target))
+		if (source_iline == ""):
+		#
+			source_iline = (
+				"m=contentor;dsd=cdid+{0}".format(Link.query_param_encode(did))
+				if (did != "") else
+				"m=contentor;a=list;dsd=ccid+{0}".format(Link.query_param_encode(cid))
+			)
+		#
+		else: source = Link.query_param_encode(source_iline)
+
+		target = ""
+
+		if (target_iline == ""): target_iline = "m=contentor;dsd=cdid+[id_d]"
+		else: target = Link.query_param_encode(target_iline)
 
 		L10n.init("pas_http_contentor")
 
@@ -233,7 +256,7 @@ Action for "new"
 
 		Link.store_set("servicemenu", Link.TYPE_RELATIVE, L10n.get("core_back"), { "__query__": re.sub("\\[\\w+\\]", "", source_iline) }, image = "mini_default_back", priority = 2)
 
-		form = NamedLoader.get_instance("dNG.pas.data.xhtml.form.Input", True)
+		form = NamedLoader.get_instance("dNG.pas.data.xhtml.form.Processor")
 
 		if (is_save_mode):
 		#
@@ -261,6 +284,13 @@ Action for "new"
 		})
 
 		form.entry_add_textarea({
+			"name": "cdescription",
+			"title": L10n.get("pas_http_contentor_document_description"),
+			"size": "s",
+			"max": 255
+		})
+
+		form.entry_add_textarea({
 			"name": "ccontent",
 			"title": L10n.get("pas_http_contentor_document_content"),
 			"required": True,
@@ -277,6 +307,7 @@ Action for "new"
 			#
 				document_title = InputFilter.filter_control_chars(form.get_value("ctitle"))
 				document_tag = InputFilter.filter_control_chars(form.get_value("ctag"))
+				document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
 				document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
 				document_data = {
@@ -284,7 +315,8 @@ Action for "new"
 					"title": FormTags.encode(document_title),
 					"tag": document_tag,
 					"author_ip": self.request.get_client_host(),
-					"content": FormTags.encode(document_content)
+					"content": FormTags.encode(document_content),
+					"description": document_description
 				}
 
 				user_profile = (None if (session == None) else session.get_user_profile())

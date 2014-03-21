@@ -89,6 +89,10 @@ contentor_document.time_published
 	"""
 contentor_document.entry_type
 	"""
+	description = Column(VARCHAR(255), server_default = "", nullable = False)
+	"""
+contentor_document.description
+	"""
 	locked = Column(BOOLEAN, server_default = "0", nullable = False)
 	"""
 contentor_document.locked

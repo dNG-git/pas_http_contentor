@@ -110,6 +110,7 @@ Sets values given as keyword arguments to this method.
 			if ("time_published" in kwargs): self.local.db_instance.time_published = int(kwargs['time_published'])
 			if ("entry_type" in kwargs): self.local.db_instance.entry_type = kwargs['entry_type']
 			if ("locked" in kwargs): self.local.db_instance.locked = kwargs['locked']
+			if ("description" in kwargs): self.local.db_instance.description = Binary.utf8(kwargs['description'])
 			if ("public_permission" in kwargs): self.local.db_instance.public_permission = kwargs['public_permission']
 
 			if ("content" in kwargs):
@@ -155,7 +156,7 @@ Insert the instance into the database.
 				if (self.local.db_instance.public_permission == None): self.local.db_instance.public_permission = parent_data['public_permission']
 			#
 
-			pass#if (acl_missing and isinstance(parent_object, OwnableMixin)): self.data.acl_set_list(parent_object.data_acl_get_list())
+			# TODO: if (acl_missing and isinstance(parent_object, OwnableMixin)): self.data.acl_set_list(parent_object.data_acl_get_list())
 		#
 	#
 #
