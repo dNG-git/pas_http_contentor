@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.plugins.database.pas_contentor
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 direct PAS
 Python Application Services
 ----------------------------------------------------------------------------
@@ -33,43 +29,14 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(pasHttpContentorVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=unused-argument
 
-from dNG.pas.module.named_loader import NamedLoader
-from dNG.pas.plugins.hooks import Hooks
+from dNG.pas.data.http.virtual_config import VirtualConfig
+from dNG.pas.plugins.hook import Hook
 
-def plugin_db_load_all(params = None, last_return = None):
-#
-	"""
-Load and register all SQLAlchemy objects to generate database tables.
-
-:param params: Parameter specified
-:param last_return: The return value from the last hook called.
-
-:since: v0.1.00
-	"""
-
-	NamedLoader.get_instance("dNG.pas.database.instances.ContentorCategory")
-	NamedLoader.get_instance("dNG.pas.database.instances.ContentorDocument")
-
-	return last_return
-#
-
-def plugin_deregistration():
-#
-	"""
-Unregister plugin hooks.
-
-:since: v0.1.00
-	"""
-
-	Hooks.unregister("dNG.pas.Database.loadAll", plugin_db_load_all)
-#
-
-def plugin_registration():
+def register_plugin():
 #
 	"""
 Register plugin hooks.
@@ -77,7 +44,36 @@ Register plugin hooks.
 :since: v0.1.00
 	"""
 
-	Hooks.register("dNG.pas.Database.loadAll", plugin_db_load_all)
+	Hook.register("dNG.pas.http.Server.onStartup", on_startup)
+	Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
+#
+
+def on_startup(params, last_return = None):
+#
+	"""
+Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
+
+:param params: Parameter specified
+:param last_return: The return value from the last hook called.
+
+:return: (mixed) Return value
+:since:  v0.1.00
+	"""
+
+	VirtualConfig.set_virtual_path("/contentor/view/", { "m": "contentor", "s": "index", "a": "index", "path_parameters": True })
+	return last_return
+#
+
+def unregister_plugin():
+#
+	"""
+Unregister plugin hooks.
+
+:since: v0.1.00
+	"""
+
+	Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
+	Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
 
 ##j## EOF

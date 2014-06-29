@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.module.blocks.contentor.DocumentList
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 direct PAS
 Python Application Services
 ----------------------------------------------------------------------------
@@ -33,8 +29,7 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(pasHttpContentorVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from math import ceil
 
@@ -56,8 +51,8 @@ class DocumentList(Module):
 :package:    pas.http
 :subpackage: contentor
 :since:      v0.1.00
-:license:    http://www.direct-netware.de/redirect.py?licenses;mpl2
-             Mozilla Public License, v. 2.0
+:license:    http://www.direct-netware.de/redirect.py?licenses;gpl
+             GNU General Public License 2
 	"""
 
 	def execute_render_simple(self):
@@ -69,7 +64,7 @@ Action for "render_simple"
 		"""
 
 		if ("id" in self.context): self._render(self.context['id'])
-		else: raise TranslatableException("core_unknown_error", "Missing service list to render")
+		else: raise TranslatableException("core_unknown_error", value = "Missing category ID to render")
 	#
 
 	def _render(self, _id):
@@ -81,20 +76,22 @@ List renderer
 		"""
 
 		category = Category.load_id(_id)
-		category_data = category.data_get("objects", "entry_type")
-
-		page = (self.context['page'] if ("page" in self.context) else 1)
+		category_data = category.get_data_attributes("sub_entries", "entry_type")
 
 		if (category_data['entry_type'] == "simple"): limit_default = 20
 		else: limit_default = 20
 
-		limit = HookableSettings(
-			"dNG.pas.http.contentor.DocumentList.get_limit",
-			id = _id,
-			type = category_data['entry_type']
-		).get("pas_http_contentor_document_list_{0}_limit".format(category_data['entry_type']), limit_default)
+		hookable_settings = HookableSettings("dNG.pas.http.contentor.DocumentList.getLimit",
+		                                     id = _id,
+		                                     type = category_data['entry_type']
+		                                    )
 
-		pages = (1 if (category_data['objects'] == 0) else ceil(category_data['objects'] / limit))
+		limit = hookable_settings.get("pas_http_contentor_list_{0}_document_limit".format(category_data['entry_type']),
+		                              limit_default
+		                             )
+
+		page = (self.context['page'] if ("page" in self.context) else 1)
+		pages = (1 if (category_data['sub_entries'] == 0) else ceil(float(category_data['sub_entries']) / limit))
 
 		offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
 
@@ -105,7 +102,7 @@ List renderer
 		rendered_links = page_link_renderer.render()
 
 		rendered_content = rendered_links
-		for document in category.get_objects(offset, limit): rendered_content += self._render_document(document)
+		for document in category.get_sub_entries(offset, limit): rendered_content += self._render_document(document)
 		rendered_content += "\n" + rendered_links
 
 		self.set_action_result(rendered_content)
@@ -116,26 +113,25 @@ List renderer
 		"""
 Renders the document.
 
-:return: (str) Link (X)HTML
+:return: (str) Document XHTML
 :since:  v0.1.01
 		"""
 
-		document_data = document.data_get("id", "title", "time_sortable", "objects", "objects_sub_type", "author_id", "author_ip", "time_published", "entry_type", "description")
+		document_data = document.get_data_attributes("id", "title", "time_sortable", "sub_entries", "sub_entries_type", "author_id", "author_ip", "time_published", "entry_type", "description")
 
-		content = {
-			"id": document_data['id'],
-			"title": document_data['title'],
-			"link": Link().build_url(Link.TYPE_RELATIVE, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
-			"author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
-			"time_published": document_data['time_published'],
-			"description": document_data['description']
-		}
+		content = { "id": document_data['id'],
+		            "title": document_data['title'],
+		            "link": Link().build_url(Link.TYPE_RELATIVE, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
+		            "author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
+		            "time_published": document_data['time_published'],
+		            "description": document_data['description']
+		          }
 
 		if (document_data['time_published'] != document_data['time_sortable']): content['time_updated'] = document_data['time_sortable']
 
 		parser = FileParser()
 		parser.set_oset(self.response.get_oset())
-		_return = parser.render("contentor/list_document_{0}".format(document_data['entry_type']), content)
+		_return = parser.render("contentor.{0}_list_document".format(document_data['entry_type']), content)
 
 		return _return
 	#

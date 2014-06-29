@@ -1,0 +1,8 @@
+<div class="pagecontent_contentor pagecontent_contentor_simple_list">
+	<h1>[rewrite:content]title[/rewrite]</h1>
+[if:content:sub_entries != ]
+[block:content:sub_entries]contentor.DocumentList.render_simple[/block]
+[/if][if:content:sub_entries == ]
+	<p><strong>[rewrite:l10n]pas_http_contentor_category_empty[/rewrite]</strong></p>
+[/if]
+</div>

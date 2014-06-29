@@ -2,10 +2,6 @@
 ##j## BOF
 
 """
-dNG.pas.database.instances.ContentorCategory
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
 direct PAS
 Python Application Services
 ----------------------------------------------------------------------------
@@ -33,21 +29,20 @@ http://www.direct-netware.de/redirect.py?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(pasHttpContentorVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
-from sqlalchemy import BOOLEAN, CHAR, Column, ForeignKey, VARCHAR
+from dNG.pas.data.settings import Settings
+from dNG.pas.data.translatable_exception import TranslatableException
+from dNG.pas.database.connection import Connection
+from dNG.pas.module.controller.abstract_http import AbstractHttp as AbstractHttpController
 
-from .data_linker import DataLinker
-from .ownable_mixin import OwnableMixin
-
-class ContentorCategory(DataLinker, OwnableMixin):
+class Module(AbstractHttpController):
 #
 	"""
-"ContentorCategory" represents a contentor entry.
+Module for "contentor"
 
 :author:     direct Netware Group
-:copyright:  direct Netware Group - All rights reserved
+:copyright:  (C) direct Netware Group - All rights reserved
 :package:    pas.http
 :subpackage: contentor
 :since:      v0.1.00
@@ -55,41 +50,41 @@ class ContentorCategory(DataLinker, OwnableMixin):
              GNU General Public License 2
 	"""
 
-	__tablename__ = "{0}_contentor_category".format(DataLinker.get_table_prefix())
-	"""
-SQLAlchemy table name
-	"""
-	db_instance_class = "dNG.pas.data.contentor.Category"
-	"""
-Encapsulating SQLAlchemy database instance class name
-	"""
+	def __init__(self):
+	#
+		"""
+Constructor __init__(Module)
 
-	id = Column(VARCHAR(32), ForeignKey(DataLinker.id_object), primary_key = True)
-	"""
-contentor_category.id
-	"""
-	owner_type = Column(CHAR(1), server_default = "u", nullable = False)
-	"""
-contentor_category.owner_type
-	"""
-	entry_type = Column(VARCHAR(255), server_default = "simple", nullable = False)
-	"""
-contentor_category.entry_type
-	"""
-	locked = Column(BOOLEAN, server_default = "0", nullable = False)
-	"""
-contentor_category.locked
-	"""
-	public_permission = Column(CHAR(1), server_default = "", nullable = False)
-	"""
-contentor_category.public_permission
-	"""
+:since: v0.1.00
+		"""
 
-	__mapper_args__ = { "polymorphic_identity": "ContentorCategory" }
-	"""
-sqlalchemy.org: Other options are passed to mapper() using the
-                __mapper_args__ class variable.
-	"""
+		AbstractHttpController.__init__(self)
+
+		self.database = None
+		"""
+Database instance
+		"""
+
+		Settings.read_file("{0}/settings/pas_http_contentor.json".format(Settings.get("path_data")))
+	#
+
+	def execute(self):
+	#
+		"""
+Execute the requested action.
+
+:since: v0.1.00
+		"""
+
+		try: database = Connection.get_instance()
+		except Exception as handled_exception:
+		#
+			if (self.log_handler != None): self.log_handler.error(handled_exception, context = "pas_http_site")
+			raise TranslatableException("core_database_error", _exception = handled_exception)
+		#
+
+		with database: return AbstractHttpController.execute(self)
+	#
 #
 
 ##j## EOF
