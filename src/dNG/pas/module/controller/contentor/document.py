@@ -46,7 +46,9 @@ from dNG.pas.data.text.l10n import L10n
 from dNG.pas.data.xhtml.form_tags import FormTags
 from dNG.pas.data.xhtml.link import Link
 from dNG.pas.data.xhtml.notification_store import NotificationStore
+from dNG.pas.data.xhtml.form.form_tags_textarea_field import FormTagsTextareaField
 from dNG.pas.data.xhtml.form.processor import Processor as FormProcessor
+from dNG.pas.data.xhtml.form.text_field import TextField
 from dNG.pas.database.nothing_matched_exception import NothingMatchedException
 from dNG.pas.database.transaction_context import TransactionContext
 from dNG.pas.plugins.hook import Hook
@@ -66,24 +68,28 @@ Service for "m=contentor;s=document"
              GNU General Public License 2
 	"""
 
-	def _check_tag_unique(self, field_data, validator_context):
+	def _check_tag_unique(self, field, validator_context):
 	#
 		"""
 Form validator that checks if the tag is unique if defined.
 
-:param field_data: Form field data
+:param field: Form field
 :param validator_context: Form validator context
 
 :return: (str) Error message; None on success
 :since:  v0.1.00
 		"""
 
-		is_valid = (validator_context['category'].is_tag_unique(field_data['content'])
-		            if (len(field_data['content']) > 0) else
-		            True
-		           )
+		_return = None
 
-		return (None if (is_valid) else L10n.get("pas_http_datalinker_form_error_tag_not_unique"))
+		value = field.get_value()
+
+		if ((validator_context['form'] == "new" or value != validator_context['current_tag'])
+		    and len(value) > 0
+		    and (not validator_context['category'].is_tag_unique(value))
+		   ): _return = L10n.get("pas_http_datalinker_form_error_tag_not_unique")
+
+		return _return
 	#
 
 	def execute_edit(self, is_save_mode = False):
@@ -122,20 +128,23 @@ Action for "edit"
 		category = document.load_parent()
 		if (isinstance(category, OwnableInstance) and (not category.is_readable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
 
+		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
+
 		Link.set_store("servicemenu",
 		               Link.TYPE_RELATIVE,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
-		               image = "mini_default_back",
-		               priority = 2
+		               icon = "mini-default-back",
+		               priority = 7
 		              )
 
 		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
 
 		form = FormProcessor(form_id)
-		form.set_validator_context({ "category": category })
 
 		document_data = document.get_data_attributes("title", "tag", "content", "description")
+
+		form.set_context({ "category": category, "form": "edit", "current_tag": document_data['tag'] })
 
 		document_title = None
 		document_tag = None
@@ -151,37 +160,35 @@ Action for "edit"
 			document_content = document_data['content']
 		#
 
-		form.add_text({ "name": "ctitle",
-		                "title": L10n.get("pas_http_contentor_document_title"),
-		                "content": document_title,
-		                "required": True,
-		                "size": "l",
-		                "min": int(Settings.get("pas_http_contentor_document_title_min", 3))
-		              })
+		field = TextField("ctitle")
+		field.set_title(L10n.get("pas_http_contentor_document_title"))
+		field.set_value(document_title)
+		field.set_required()
+		field.set_size(TextField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_title_min", 3)))
+		form.add(field)
 
-		form.add_text({ "name": "ctag",
-		                "title": L10n.get("pas_http_contentor_document_tag"),
-		                "content": document_tag,
-		                "required": True,
-		                "size": "s",
-		                "max": 255,
-		                "validators": [ self._check_tag_unique ]
-		              })
+		field = TextField("ctag")
+		field.set_title(L10n.get("pas_http_contentor_document_tag"))
+		field.set_value(document_tag)
+		field.set_size(TextField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		form.add(field)
 
-		form.add_textarea({ "name": "cdescription",
-		                    "title": L10n.get("pas_http_contentor_document_description"),
-		                    "content": document_description,
-		                    "size": "s",
-		                    "max": 255
-		                  })
+		field = FormTagsTextareaField("cdescription")
+		field.set_title(L10n.get("pas_http_contentor_document_description"))
+		field.set_value(document_description)
+		field.set_size(FormTagsTextareaField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		form.add(field)
 
-		form.add_textarea({ "name": "ccontent",
-		                    "title": L10n.get("pas_http_contentor_document_content"),
-		                    "content": document_content,
-		                    "required": True,
-		                    "size": "l",
-		                    "min": int(Settings.get("pas_http_contentor_document_content_min", 6))
-		                  })
+		field = FormTagsTextareaField("ccontent")
+		field.set_title(L10n.get("pas_http_contentor_document_content"))
+		field.set_value(document_content)
+		field.set_required()
+		field.set_size(FormTagsTextareaField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_content_min", 6)))
+		form.add(field)
 
 		if (is_save_mode and form.check()):
 		#
@@ -191,10 +198,10 @@ Action for "edit"
 			document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
 			document.set_data_attributes(time_sortable = time(),
-			                             title = FormTags.encode(document_title),
+			                             title = document_title,
 			                             tag = document_tag,
 			                             content = FormTags.encode(document_content),
-			                             description = document_description
+			                             description = FormTags.encode(document_description)
 			                            )
 
 			document.save()
@@ -283,47 +290,48 @@ Action for "new"
 		session = self.request.get_session()
 		if (isinstance(category, OwnableInstance) and (not category.is_writable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
 
+		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
+
 		Link.set_store("servicemenu",
 		               Link.TYPE_RELATIVE,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
-		               image = "mini_default_back",
-		               priority = 2
+		               icon = "mini-default-back",
+		               priority = 7
 		              )
 
 		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
 
 		form = FormProcessor(form_id)
-		form.set_validator_context({ "category": category })
+		form.set_context({ "category": category, "form": "new" })
 
 		if (is_save_mode): form.set_input_available()
 
-		form.add_text({ "name": "ctitle",
-		                "title": L10n.get("pas_http_contentor_document_title"),
-		                "required": True,
-		                "size": "l",
-		                "min": int(Settings.get("pas_http_contentor_document_title_min", 3))
-		              })
+		field = TextField("ctitle")
+		field.set_title(L10n.get("pas_http_contentor_document_title"))
+		field.set_required()
+		field.set_size(TextField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_title_min", 3)))
+		form.add(field)
 
-		form.add_text({ "name": "ctag",
-		                "title": L10n.get("pas_http_contentor_document_tag"),
-		                "required": False,
-		                "size": "s",
-		                "max": 255
-		              })
+		field = TextField("ctag")
+		field.set_title(L10n.get("pas_http_contentor_document_tag"))
+		field.set_size(TextField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		form.add(field)
 
-		form.add_textarea({ "name": "cdescription",
-		                    "title": L10n.get("pas_http_contentor_document_description"),
-		                    "size": "s",
-		                    "max": 255
-		                  })
+		field = FormTagsTextareaField("cdescription")
+		field.set_title(L10n.get("pas_http_contentor_document_description"))
+		field.set_size(FormTagsTextareaField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		form.add(field)
 
-		form.add_textarea({ "name": "ccontent",
-		                    "title": L10n.get("pas_http_contentor_document_content"),
-		                    "required": True,
-		                    "size": "l",
-		                    "min": int(Settings.get("pas_http_contentor_document_content_min", 6))
-		                  })
+		field = FormTagsTextareaField("ccontent")
+		field.set_title(L10n.get("pas_http_contentor_document_content"))
+		field.set_required()
+		field.set_size(FormTagsTextareaField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_content_min", 6)))
+		form.add(field)
 
 		if (is_save_mode and form.check()):
 		#
@@ -338,11 +346,11 @@ Action for "new"
 				document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
 				document_data = { "time_sortable": time(),
-				                  "title": FormTags.encode(document_title),
+				                  "title": document_title,
 				                  "tag": document_tag,
 				                  "author_ip": self.request.get_client_host(),
 				                  "content": FormTags.encode(document_content),
-				                  "description": document_description
+				                  "description": FormTags.encode(document_description)
 				                }
 
 				user_profile = (None if (session == None) else session.get_user_profile())

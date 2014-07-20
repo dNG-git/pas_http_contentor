@@ -96,23 +96,27 @@ Action for "list"
 			else: raise TranslatableError("core_access_denied", 403)
 		#
 
+		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
+
 		if (category.is_writable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED), L10n.get("pas_http_contentor_document_new"),
+			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               L10n.get("pas_http_contentor_document_new"),
 			               { "m": "contentor", "s": "document", "a": "new", "dsd": { "ccid": cid } },
-			               image = "mini_default_option",
-			               priority = 6
+			               icon = "mini-default-option",
+			               priority = 3
 			              )
 		#
 
 		if (category.is_manageable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED), L10n.get("pas_http_contentor_category_manage"),
+			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               L10n.get("pas_http_contentor_category_manage"),
 			               { "m": "contentor", "s": "category", "a": "manage", "dsd": { "ccid": cid } },
-			               image = "mini_default_option",
-			               priority = 6
+			               icon = "mini-default-option",
+			               priority = 3
 			              )
 		#
 
@@ -138,7 +142,7 @@ Action for "list"
 		#
 
 		self.response.init(True)
-		self.response.set_expires_relative(+30)
+		self.response.set_expires_relative(+15)
 		self.response.set_title(category_data['title'])
 		self.response.add_oset_content("contentor.{0}_list".format(category_data['entry_type']), content)
 
@@ -177,17 +181,21 @@ Action for "view"
 			else: raise TranslatableError("core_access_denied", 403)
 		#
 
+		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
+
 		if (document.is_writable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED), L10n.get("pas_http_contentor_document_edit"),
+			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               L10n.get("pas_http_contentor_document_edit"),
 			               { "m": "contentor", "s": "document", "a": "edit", "dsd": { "cdid": did } },
-			               image = "mini_default_option",
-			               priority = 6
+			               icon = "mini-default-option",
+			               priority = 3
 			              )
 		#
 
 		document_parent = document.load_parent()
+		if (document_parent == None and document.is_main_entry()): document_parent = document
 		is_category = isinstance(document_parent, Category)
 
 		if (isinstance(document_parent, OwnableInstance) and document_parent.is_writable_for_session_user(session)):
@@ -200,19 +208,21 @@ Action for "view"
 			                 )
 
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED), L10n.get("pas_http_contentor_document_new"),
+			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               L10n.get("pas_http_contentor_document_new"),
 			               { "m": "contentor", "s": "document", "a": "new", "dsd": dsd_parameters },
-			               image = "mini_default_option",
-			               priority = 6
+			               icon = "mini-default-option",
+			               priority = 3
 			              )
 
 			if (is_category and document_parent.is_manageable_for_session_user(session)):
 			#
 				Link.set_store("servicemenu",
-				               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED), L10n.get("pas_http_contentor_category_manage"),
+				               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+				               L10n.get("pas_http_contentor_category_manage"),
 				               { "m": "contentor", "s": "category", "a": "manage", "dsd": { "ccid": document_parent_id } },
-				               image = "mini_default_option",
-				               priority = 6
+				               icon = "mini-default-option",
+				               priority = 3
 				              )
 			#
 		#
@@ -250,7 +260,7 @@ Action for "view"
 
 		self.response.init(True)
 		self.response.set_title(document_data['title'])
-		self.response.set_expires_relative(+120)
+		self.response.set_expires_relative(+30)
 		self.response.set_last_modified(document_data['time_sortable'])
 		self.response.add_oset_content("contentor.{0}_document".format(document_data['entry_type']), content)
 
