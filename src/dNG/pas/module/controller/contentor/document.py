@@ -146,19 +146,12 @@ Action for "edit"
 
 		form.set_context({ "category": category, "form": "edit", "current_tag": document_data['tag'] })
 
-		document_title = None
-		document_tag = None
-		document_description = None
-		document_content = None
+		document_title = document_data['title']
+		document_tag = document_data['tag']
+		document_description = document_data['description']
+		document_content = document_data['content']
 
 		if (is_save_mode): form.set_input_available()
-		else:
-		#
-			document_title = document_data['title']
-			document_tag = document_data['tag']
-			document_description = document_data['description']
-			document_content = document_data['content']
-		#
 
 		field = TextField("ctitle")
 		field.set_title(L10n.get("pas_http_contentor_document_title"))
@@ -244,7 +237,7 @@ Action for "edit-save"
 :since: v0.1.00
 		"""
 
-		self.execute_edit(True)
+		self.execute_edit(self.request.get_type() == "POST")
 	#
 
 	def execute_new(self, is_save_mode = False):
@@ -403,7 +396,7 @@ Action for "new-save"
 :since: v0.1.00
 		"""
 
-		self.execute_new(True)
+		self.execute_new(self.request.get_type() == "POST")
 	#
 #
 
