@@ -6,7 +6,7 @@ direct PAS
 Python Application Services
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-http://www.direct-netware.de/redirect.py?pas;http;contentor
+https://www.direct-netware.de/redirect?pas;http;contentor
 
 The following license agreement remains valid unless any additions or
 changes are being made by direct Netware Group in a written form.
@@ -25,7 +25,7 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 ----------------------------------------------------------------------------
-http://www.direct-netware.de/redirect.py?licenses;gpl
+https://www.direct-netware.de/redirect?licenses;gpl
 ----------------------------------------------------------------------------
 #echo(pasHttpContentorVersion)#
 #echo(__FILEPATH__)#
@@ -65,7 +65,7 @@ Service for "m=contentor;s=document"
 :package:    pas.http
 :subpackage: contentor
 :since:      v0.1.00
-:license:    http://www.direct-netware.de/redirect.py?licenses;gpl
+:license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
 
