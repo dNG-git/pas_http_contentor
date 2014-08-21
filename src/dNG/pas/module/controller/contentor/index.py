@@ -45,7 +45,7 @@ from .module import Module
 class Index(Module):
 #
 	"""
-Service for "m=contentor;s=index"
+Service for "m=contentor"
 
 :author:     direct Netware Group
 :copyright:  (C) direct Netware Group - All rights reserved

@@ -41,6 +41,8 @@ from dNG.pas.data.settings import Settings
 from dNG.pas.data.contentor.category import Category
 from dNG.pas.data.contentor.document import Document as _Document
 from dNG.pas.data.http.translatable_error import TranslatableError
+from dNG.pas.data.http.translatable_exception import TranslatableException
+from dNG.pas.data.tasks.database_proxy import DatabaseProxy as DatabaseTasks
 from dNG.pas.data.text.input_filter import InputFilter
 from dNG.pas.data.text.l10n import L10n
 from dNG.pas.data.xhtml.form_tags import FormTags
@@ -51,7 +53,6 @@ from dNG.pas.data.xhtml.form.processor import Processor as FormProcessor
 from dNG.pas.data.xhtml.form.text_field import TextField
 from dNG.pas.database.nothing_matched_exception import NothingMatchedException
 from dNG.pas.database.transaction_context import TransactionContext
-from dNG.pas.plugins.hook import Hook
 from .module import Module
 
 class Document(Module):
@@ -105,15 +106,11 @@ Action for "edit"
 		source_iline = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
 		target_iline = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
 
-		source = ""
-
+		source = source_iline
 		if (source_iline == ""): source_iline = "m=contentor;dsd=cdid+{0}".format(Link.encode_query_value(did))
-		else: source = Link.encode_query_value(source_iline)
 
-		target = ""
-
-		if (target_iline != ""): target = Link.encode_query_value(target_iline)
-		else: target_iline = source_iline
+		target = target_iline
+		if (target_iline == ""): target_iline = source_iline
 
 		L10n.init("pas_http_contentor")
 
@@ -125,8 +122,8 @@ Action for "edit"
 
 		if (not document.is_writable()): raise TranslatableError("core_access_denied", 403)
 
-		category = document.load_parent()
-		if (isinstance(category, OwnableInstance) and (not category.is_readable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
+		document_parent = document.load_parent()
+		if (isinstance(document_parent, OwnableInstance) and (not document_parent.is_readable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
 
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
@@ -138,13 +135,14 @@ Action for "edit"
 		               priority = 7
 		              )
 
-		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
-
-		form = FormProcessor(form_id)
+		if (not DatabaseTasks.is_available()): raise TranslatableException("pas_core_tasks_daemon_not_available")
 
 		document_data = document.get_data_attributes("title", "tag", "content", "description")
 
-		form.set_context({ "category": category, "form": "edit", "current_tag": document_data['tag'] })
+		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
+
+		form = FormProcessor(form_id)
+		form.set_context({ "category": document_parent, "form": "edit", "current_tag": document_data['tag'] })
 
 		document_title = document_data['title']
 		document_tag = document_data['tag']
@@ -166,6 +164,7 @@ Action for "edit"
 		field.set_value(document_tag)
 		field.set_size(TextField.SIZE_SMALL)
 		field.set_limits(_max = 255)
+		field.set_validators([ self._check_tag_unique ])
 		form.add(field)
 
 		field = FormTagsTextareaField("cdescription")
@@ -198,7 +197,10 @@ Action for "edit"
 			                            )
 
 			document.save()
-			Hook.call("dNG.pas.contentor.Document.onUpdated", document = document)
+
+			cid = document_parent.get_id()
+
+			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onUpdated.{0}".format(did), "dNG.pas.contentor.Document.onUpdated", 1, category_id = cid, document_id = did)
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(did))
 			target_iline = re.sub("\\_\\w+\\_\\_", "", target_iline)
@@ -256,7 +258,7 @@ Action for "new"
 		source_iline = InputFilter.filter_control_chars(self.request.get_dsd("source", "")).strip()
 		target_iline = InputFilter.filter_control_chars(self.request.get_dsd("target", "")).strip()
 
-		source = ""
+		source = source_iline
 
 		if (source_iline == ""):
 		#
@@ -265,12 +267,9 @@ Action for "new"
 			                "m=contentor;dsd=ccid+{0}".format(Link.encode_query_value(cid))
 			               )
 		#
-		else: source = Link.encode_query_value(source_iline)
 
-		target = ""
-
+		target = target_iline
 		if (target_iline == ""): target_iline = "m=contentor;dsd=cdid+__id_d__"
-		else: target = Link.encode_query_value(target_iline)
 
 		L10n.init("pas_http_contentor")
 		L10n.init("pas_http_datalinker")
@@ -293,6 +292,8 @@ Action for "new"
 		               priority = 7
 		              )
 
+		if (not DatabaseTasks.is_available()): raise TranslatableException("pas_core_tasks_daemon_not_available")
+
 		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
 
 		form = FormProcessor(form_id)
@@ -311,6 +312,7 @@ Action for "new"
 		field.set_title(L10n.get("pas_http_contentor_document_tag"))
 		field.set_size(TextField.SIZE_SMALL)
 		field.set_limits(_max = 255)
+		field.set_validators([ self._check_tag_unique ])
 		form.add(field)
 
 		field = FormTagsTextareaField("cdescription")
@@ -331,13 +333,13 @@ Action for "new"
 			document = _Document()
 			did_d = None
 
+			document_title = InputFilter.filter_control_chars(form.get_value("ctitle"))
+			document_tag = InputFilter.filter_control_chars(form.get_value("ctag"))
+			document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
+			document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
+
 			with TransactionContext():
 			#
-				document_title = InputFilter.filter_control_chars(form.get_value("ctitle"))
-				document_tag = InputFilter.filter_control_chars(form.get_value("ctag"))
-				document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
-				document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
-
 				document_data = { "time_sortable": time(),
 				                  "title": document_title,
 				                  "tag": document_tag,
@@ -353,11 +355,11 @@ Action for "new"
 
 				if (isinstance(category, DataLinker)): category.add_entry(document)
 				document.save()
-
-				Hook.call("dNG.pas.contentor.Document.onAdded", category = category, document = document)
-
-				did_d = document.get_id()
 			#
+
+			did_d = document.get_id()
+
+			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onAdded.{0}".format(did_d), "dNG.pas.contentor.Document.onAdded", 1, category_id = oid, document_id = did_d)
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(did_d))
 			target_iline = re.sub("\\_\\_\\w+\\_\\_", "", target_iline)
