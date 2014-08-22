@@ -3,7 +3,7 @@
 <p>[rewrite:formtags_content]content[/rewrite]</p>
 <p><small>[rewrite:l10n]pas_http_contentor_document_published_1[/rewrite]<strong>[rewrite:timestamp:date_time_long]time_published[/rewrite]</strong>[rewrite:l10n]pas_http_contentor_document_published_2[/rewrite][rewrite:user_linked]author[/rewrite][rewrite:l10n]pas_http_contentor_document_published_3[/rewrite]
 [if:content:time_updated != ]
-[rewrite:l10n]pas_http_contentor_document_updated_1[/rewrite]<strong>[rewrite:timestamp:date_time_short]time_updated[/rewrite]</strong>[rewrite:l10n]pas_http_contentor_document_updated_2[/rewrite]
+[rewrite:l10n]pas_http_datalinker_entry_updated_1[/rewrite]<strong>[rewrite:timestamp:date_time_short]time_updated[/rewrite]</strong>[rewrite:l10n]pas_http_datalinker_entry_updated_2[/rewrite]
 [/if]
 </small></p>
 </article>
