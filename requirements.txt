@@ -1,3 +1,3 @@
 -e git+http://git.direct-netware.de/pas/contentor/#egg=pas_contentor
--e git+http://git.direct-netware.de/pas/http_core/#egg=pas_http_core
+-e git+http://git.direct-netware.de/pas/http/core/#egg=pas_http_core
 -e git+http://git.direct-netware.de/pas/tasks/#egg=pas_tasks
