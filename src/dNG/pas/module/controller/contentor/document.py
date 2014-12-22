@@ -118,7 +118,7 @@ Action for "edit"
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_did_invalid", 404, _exception = handled_exception)
 
 		session = self.request.get_session()
-		if (session != None): document.set_permission_session(session)
+		if (session is not None): document.set_permission_session(session)
 
 		if (not document.is_writable()): raise TranslatableError("core_access_denied", 403)
 
@@ -338,19 +338,19 @@ Action for "new"
 			document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
 			document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
+			document_data = { "time_sortable": time(),
+			                  "title": document_title,
+			                  "tag": document_tag,
+			                  "author_ip": self.request.get_client_host(),
+			                  "content": FormTags.encode(document_content),
+			                  "description": FormTags.encode(document_description)
+			                }
+
+			user_profile = (None if (session is None) else session.get_user_profile())
+			if (user_profile is not None): document_data['author_id'] = user_profile.get_id()
+
 			with TransactionContext():
 			#
-				document_data = { "time_sortable": time(),
-				                  "title": document_title,
-				                  "tag": document_tag,
-				                  "author_ip": self.request.get_client_host(),
-				                  "content": FormTags.encode(document_content),
-				                  "description": FormTags.encode(document_description)
-				                }
-
-				user_profile = (None if (session == None) else session.get_user_profile())
-				if (user_profile != None): document_data['author_id'] = user_profile.get_id()
-
 				document.set_data_attributes(**document_data)
 
 				if (isinstance(category, DataLinker)): category.add_entry(document)

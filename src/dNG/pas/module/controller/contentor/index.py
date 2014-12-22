@@ -88,11 +88,11 @@ Action for "list"
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_cid_invalid", 404, _exception = handled_exception)
 
 		session = self.request.get_session()
-		if (session != None): category.set_permission_session(session)
+		if (session is not None): category.set_permission_session(session)
 
 		if (not category.is_readable()):
 		#
-			if (session == None or session.get_user_profile() == None): raise TranslatableError("pas_http_contentor_cid_invalid", 404)
+			if (session is None or session.get_user_profile() is None): raise TranslatableError("pas_http_contentor_cid_invalid", 404)
 			else: raise TranslatableError("core_access_denied", 403)
 		#
 
@@ -131,7 +131,7 @@ Action for "list"
 
 		category_parent = category.load_parent()
 
-		if (category_parent != None
+		if (category_parent is not None
 		    and ((not isinstance(category_parent, OwnableInstance))
 		         or category_parent.is_readable_for_session_user(session)
 		        )
@@ -173,11 +173,11 @@ Action for "view"
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_did_invalid", 404, _exception = handled_exception)
 
 		session = self.request.get_session()
-		if (session != None): document.set_permission_session(session)
+		if (session is not None): document.set_permission_session(session)
 
 		if (not document.is_readable()):
 		#
-			if (session == None or session.get_user_profile() == None): raise TranslatableError("pas_http_contentor_did_invalid", 404)
+			if (session is None or session.get_user_profile() is None): raise TranslatableError("pas_http_contentor_did_invalid", 404)
 			else: raise TranslatableError("core_access_denied", 403)
 		#
 
@@ -195,7 +195,7 @@ Action for "view"
 		#
 
 		document_parent = document.load_parent()
-		if (document_parent == None and document.is_main_entry()): document_parent = document
+		if (document_parent is None and document.is_main_entry()): document_parent = document
 		is_category = isinstance(document_parent, Category)
 
 		if (isinstance(document_parent, OwnableInstance) and document_parent.is_writable_for_session_user(session)):
@@ -240,17 +240,17 @@ Action for "view"
 
 		document_parent_data = None
 
-		if (document_parent != None
+		if (document_parent is not None
 		    and ((not isinstance(document_parent, OwnableInstance))
 		         or document_parent.is_readable_for_session_user(session)
 		        )
 		   ): document_parent_data = document_parent.get_data_attributes("id", "id_main", "title")
 
-		if (document_data['sub_entries'] > 0 or document_parent_data != None):
+		if (document_data['sub_entries'] > 0 or document_parent_data is not None):
 		#
 			content['sub_entries'] = { "type": document_data['sub_entries_type'], "id": document_data['id'] }
 
-			if (document_parent_data != None):
+			if (document_parent_data is not None):
 			#
 				content['sub_entries']['parent_id'] = document_parent_data['id']
 				content['sub_entries']['parent_main_id'] = document_parent_data['id_main']
