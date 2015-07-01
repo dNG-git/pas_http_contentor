@@ -90,7 +90,7 @@ List renderer
 		                              limit_default
 		                             )
 
-		page = (self.context['page'] if ("page" in self.context) else 1)
+		page = self.context.get("page", 1)
 		pages = (1 if (category_data['sub_entries'] == 0) else ceil(float(category_data['sub_entries']) / limit))
 
 		offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
@@ -121,7 +121,7 @@ Renders the document.
 
 		content = { "id": document_data['id'],
 		            "title": document_data['title'],
-		            "link": Link().build_url(Link.TYPE_RELATIVE, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
+		            "link": Link().build_url(Link.TYPE_RELATIVE_URL, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
 		            "author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
 		            "time_published": document_data['time_published'],
 		            "description": document_data['description']

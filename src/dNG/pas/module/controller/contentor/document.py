@@ -69,6 +69,54 @@ Service for "m=contentor;s=document"
              GNU General Public License 2
 	"""
 
+	def _apply_form(self, form, document = None):
+	#
+		"""
+Applies document form fields to given form instance.
+
+:param form: Form instance
+:param document: Document to get default data values from
+
+:since: v0.1.01
+		"""
+
+		document_data = ({ "title": None, "tag": None, "content": None, "description": None }
+		                 if (document is None) else
+		                 document.get_data_attributes("title", "tag", "content", "description")
+		                )
+
+		field = TextField("ctitle")
+		field.set_title(L10n.get("pas_http_contentor_document_title"))
+		field.set_value(document_data['title'])
+		field.set_required()
+		field.set_size(TextField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_title_min", 3)))
+		form.add(field)
+
+		field = TextField("ctag")
+		field.set_title(L10n.get("pas_http_contentor_document_tag"))
+		field.set_value(document_data['tag'])
+		field.set_size(TextField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		field.set_validators([ self._check_tag_unique ])
+		form.add(field)
+
+		field = FormTagsTextareaField("cdescription")
+		field.set_title(L10n.get("pas_http_contentor_document_description"))
+		field.set_value(document_data['description'])
+		field.set_size(FormTagsTextareaField.SIZE_SMALL)
+		field.set_limits(_max = 255)
+		form.add(field)
+
+		field = FormTagsTextareaField("ccontent")
+		field.set_title(L10n.get("pas_http_contentor_document_content"))
+		field.set_value(document_data['content'])
+		field.set_required()
+		field.set_size(FormTagsTextareaField.SIZE_LARGE)
+		field.set_limits(int(Settings.get("pas_http_contentor_document_content_min", 6)))
+		form.add(field)
+	#
+
 	def _check_tag_unique(self, field, validator_context):
 	#
 		"""
@@ -128,7 +176,7 @@ Action for "edit"
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               Link.TYPE_RELATIVE,
+		               Link.TYPE_RELATIVE_URL,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
 		               icon = "mini-default-back",
@@ -137,50 +185,15 @@ Action for "edit"
 
 		if (not DatabaseTasks.is_available()): raise TranslatableException("pas_core_tasks_daemon_not_available")
 
-		document_data = document.get_data_attributes("title", "tag", "content", "description")
+		document_data = document.get_data_attributes("tag")
 
 		form_id = InputFilter.filter_control_chars(self.request.get_parameter("form_id"))
 
 		form = FormProcessor(form_id)
 		form.set_context({ "category": document_parent, "form": "edit", "current_tag": document_data['tag'] })
 
-		document_title = document_data['title']
-		document_tag = document_data['tag']
-		document_description = document_data['description']
-		document_content = document_data['content']
-
 		if (is_save_mode): form.set_input_available()
-
-		field = TextField("ctitle")
-		field.set_title(L10n.get("pas_http_contentor_document_title"))
-		field.set_value(document_title)
-		field.set_required()
-		field.set_size(TextField.SIZE_LARGE)
-		field.set_limits(int(Settings.get("pas_http_contentor_document_title_min", 3)))
-		form.add(field)
-
-		field = TextField("ctag")
-		field.set_title(L10n.get("pas_http_contentor_document_tag"))
-		field.set_value(document_tag)
-		field.set_size(TextField.SIZE_SMALL)
-		field.set_limits(_max = 255)
-		field.set_validators([ self._check_tag_unique ])
-		form.add(field)
-
-		field = FormTagsTextareaField("cdescription")
-		field.set_title(L10n.get("pas_http_contentor_document_description"))
-		field.set_value(document_description)
-		field.set_size(FormTagsTextareaField.SIZE_SMALL)
-		field.set_limits(_max = 255)
-		form.add(field)
-
-		field = FormTagsTextareaField("ccontent")
-		field.set_title(L10n.get("pas_http_contentor_document_content"))
-		field.set_value(document_content)
-		field.set_required()
-		field.set_size(FormTagsTextareaField.SIZE_LARGE)
-		field.set_limits(int(Settings.get("pas_http_contentor_document_content_min", 6)))
-		form.add(field)
+		self._apply_form(form, document)
 
 		if (is_save_mode and form.check()):
 		#
@@ -198,7 +211,7 @@ Action for "edit"
 
 			document.save()
 
-			cid = document_parent.get_id()
+			cid = (did if (document.is_main_entry()) else document_parent.get_id())
 
 			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onUpdated.{0}".format(did), "dNG.pas.contentor.Document.onUpdated", 1, category_id = cid, document_id = did)
 
@@ -285,7 +298,7 @@ Action for "new"
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
 		Link.set_store("servicemenu",
-		               Link.TYPE_RELATIVE,
+		               Link.TYPE_RELATIVE_URL,
 		               L10n.get("core_back"),
 		               { "__query__": re.sub("\\_\\_\\w+\\_\\_", "", source_iline) },
 		               icon = "mini-default-back",
@@ -300,33 +313,7 @@ Action for "new"
 		form.set_context({ "category": category, "form": "new" })
 
 		if (is_save_mode): form.set_input_available()
-
-		field = TextField("ctitle")
-		field.set_title(L10n.get("pas_http_contentor_document_title"))
-		field.set_required()
-		field.set_size(TextField.SIZE_LARGE)
-		field.set_limits(int(Settings.get("pas_http_contentor_document_title_min", 3)))
-		form.add(field)
-
-		field = TextField("ctag")
-		field.set_title(L10n.get("pas_http_contentor_document_tag"))
-		field.set_size(TextField.SIZE_SMALL)
-		field.set_limits(_max = 255)
-		field.set_validators([ self._check_tag_unique ])
-		form.add(field)
-
-		field = FormTagsTextareaField("cdescription")
-		field.set_title(L10n.get("pas_http_contentor_document_description"))
-		field.set_size(FormTagsTextareaField.SIZE_SMALL)
-		field.set_limits(_max = 255)
-		form.add(field)
-
-		field = FormTagsTextareaField("ccontent")
-		field.set_title(L10n.get("pas_http_contentor_document_content"))
-		field.set_required()
-		field.set_size(FormTagsTextareaField.SIZE_LARGE)
-		field.set_limits(int(Settings.get("pas_http_contentor_document_content_min", 6)))
-		form.add(field)
+		self._apply_form(form)
 
 		if (is_save_mode and form.check()):
 		#

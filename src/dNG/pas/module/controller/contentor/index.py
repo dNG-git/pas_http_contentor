@@ -101,7 +101,7 @@ Action for "list"
 		if (category.is_writable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 			               L10n.get("pas_http_contentor_document_new"),
 			               { "m": "contentor", "s": "document", "a": "new", "dsd": { "ccid": cid } },
 			               icon = "mini-default-option",
@@ -112,7 +112,7 @@ Action for "list"
 		if (category.is_manageable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 			               L10n.get("pas_http_contentor_category_manage"),
 			               { "m": "contentor", "s": "category", "a": "manage", "dsd": { "ccid": cid } },
 			               icon = "mini-default-option",
@@ -124,7 +124,8 @@ Action for "list"
 
 		content = { "id": category_data['id'],
 		            "title": category_data['title'],
-		            "time": category_data['time_sortable']
+		            "time": category_data['time_sortable'],
+		            "sub_entries_count": category_data['sub_entries']
 		          }
 
 		if (category_data['sub_entries'] > 0): content['sub_entries'] = { "id": category_data['id'], "page": page }
@@ -148,11 +149,11 @@ Action for "list"
 
 		if (self.response.is_supported("html_canonical_url")):
 		#
-			parameters = { "__virtual__": "/contentor/view",
-			               "dsd": { "ccid": cid, "cpage": page }
-			             }
+			link_parameters = { "__virtual__": "/contentor/view",
+			                    "dsd": { "ccid": cid, "cpage": page }
+			                  }
 
-			self.response.set_html_canonical_url(Link().build_url(Link.TYPE_VIRTUAL_PATH, parameters))
+			self.response.set_html_canonical_url(Link().build_url(Link.TYPE_VIRTUAL_PATH, link_parameters))
 		#
 	#
 
@@ -186,7 +187,7 @@ Action for "view"
 		if (document.is_writable()):
 		#
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 			               L10n.get("pas_http_contentor_document_edit"),
 			               { "m": "contentor", "s": "document", "a": "edit", "dsd": { "cdid": did } },
 			               icon = "mini-default-option",
@@ -208,7 +209,7 @@ Action for "view"
 			                 )
 
 			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 			               L10n.get("pas_http_contentor_document_new"),
 			               { "m": "contentor", "s": "document", "a": "new", "dsd": dsd_parameters },
 			               icon = "mini-default-option",
@@ -218,7 +219,7 @@ Action for "view"
 			if (is_category and document_parent.is_manageable_for_session_user(session)):
 			#
 				Link.set_store("servicemenu",
-				               (Link.TYPE_RELATIVE | Link.TYPE_JS_REQUIRED),
+				               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
 				               L10n.get("pas_http_contentor_category_manage"),
 				               { "m": "contentor", "s": "category", "a": "manage", "dsd": { "ccid": document_parent_id } },
 				               icon = "mini-default-option",
@@ -231,6 +232,7 @@ Action for "view"
 
 		content = { "id": document_data['id'],
 		            "title": document_data['title'],
+		            "sub_entries_count": document_data['sub_entries'],
 		            "author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
 		            "content": { "content": document_data['content'], "main_id": document_data['id_main'] },
 		            "time_published": document_data['time_published']
@@ -266,11 +268,11 @@ Action for "view"
 
 		if (self.response.is_supported("html_canonical_url")):
 		#
-			parameters = { "__virtual__": "/contentor/view",
-			               "dsd": { "cdid": did }
-			             }
+			link_parameters = { "__virtual__": "/contentor/view",
+			                    "dsd": { "cdid": did }
+			                  }
 
-			self.response.set_html_canonical_url(Link().build_url(Link.TYPE_VIRTUAL_PATH, parameters))
+			self.response.set_html_canonical_url(Link().build_url(Link.TYPE_VIRTUAL_PATH, link_parameters))
 		#
 
 		if (self.response.is_supported("html_page_description")
