@@ -1,5 +1,5 @@
 <section class="pagecontent_contentor pagecontent_contentor_wiki_list_document">
-	<h2><a href="[rewrite:content]link[/rewrite]">[rewrite:content]title[/rewrite]</a></h2>
+	<h2><a href="[rewrite:content]link[/rewrite]">[rewrite:safe_content]title[/rewrite]</a></h2>
 [if:content:description != ]
 	<p>[rewrite:formtags_content]description[/rewrite]</p>
 [/if]
