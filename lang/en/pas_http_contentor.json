@@ -1,20 +1,25 @@
 {
+ "pas_http_contentor_category_empty": "Currently no documents have been published in this category.",
+ "pas_http_contentor_document_description": "Content abstract",
  "pas_http_contentor_document_published_1": "Published on ",
  "pas_http_contentor_document_published_2": " by ",
  "pas_http_contentor_document_published_3": ".",
+ "pas_http_contentor_document_title": "Title",
+ "pas_http_contentor_documents": "Documents",
+ "pas_http_contentor_latest_sub_documents_1": "Latest documents in category ",
+ "pas_http_contentor_latest_sub_documents_2": "",
+ "pas_http_contentor_sub_categories": "Sub categories",
 
  "pas_http_contentor_category_manage": "Manage category",
  "pas_http_contentor_done_category_manage": "The category has been changed successfully.",
 
  "pas_http_contentor_document_edit": "Edit document",
  "pas_http_contentor_done_document_edit": "The document has been edited successfully.",
- 
+
  "pas_http_contentor_document_new": "Add document",
  "pas_http_contentor_done_document_new": "The document has been added successfully.",
 
- "pas_http_contentor_document_title": "Title",
  "pas_http_contentor_document_tag": "Unique tag",
- "pas_http_contentor_document_description": "Content abstract",
  "pas_http_contentor_document_content": "Content",
 
  "errors_pas_http_contentor_cid_invalid": "The defined category ID is invalid.",

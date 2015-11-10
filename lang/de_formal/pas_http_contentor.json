@@ -1,7 +1,14 @@
 {
+ "pas_http_contentor_category_empty": "Derzeit sind keine Dokumente in dieser Kategorie veröffentlicht worden.",
+ "pas_http_contentor_document_description": "Inhaltsbeschreibung",
  "pas_http_contentor_document_published_1": "Veröffentlicht am ",
  "pas_http_contentor_document_published_2": " von ",
  "pas_http_contentor_document_published_3": ".",
+ "pas_http_contentor_document_title": "Titel",
+ "pas_http_contentor_documents": "Dokumente",
+ "pas_http_contentor_latest_sub_documents_1": "Neueste Dokumente der Kategorie ",
+ "pas_http_contentor_latest_sub_documents_2": "",
+ "pas_http_contentor_sub_categories": "Unterkategorien",
 
  "pas_http_contentor_category_manage": "Kategorie verwalten",
  "pas_http_contentor_done_category_manage": "Die Kategorie wurde erfolgreich verändert.",
@@ -12,9 +19,7 @@
  "pas_http_contentor_document_new": "Dokument hinzufügen",
  "pas_http_contentor_done_document_new": "Das Dokument wurde erfolgreich hinzugefügt.",
 
- "pas_http_contentor_document_title": "Titel",
  "pas_http_contentor_document_tag": "Eindeutiger Tag",
- "pas_http_contentor_document_description": "Inhaltsbeschreibung",
  "pas_http_contentor_document_content": "Inhalt",
 
  "errors_pas_http_contentor_cid_invalid": "Die angegebene Kategorie-ID ist ungültig.",
