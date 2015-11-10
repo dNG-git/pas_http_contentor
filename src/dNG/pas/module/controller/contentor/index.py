@@ -139,7 +139,13 @@ Action for "list"
 		   ):
 		#
 			category_parent_data = category_parent.get_data_attributes("id", "id_main", "title")
-			if (category_parent_data['id'] != cid): content['parent'] = { "id": category_parent_data['id'], "main_id": category_parent_data['id_main'], "title": category_parent_data['title'] }
+
+			if (category_parent_data['id'] != cid):
+			#
+				content['parent'] = { "id": category_parent_data['id'],
+				                      "main_id": category_parent_data['id_main'],
+				                      "title": category_parent_data['title']
+				                    }
 		#
 
 		self.response.init(True)
@@ -199,22 +205,27 @@ Action for "view"
 		if (document_parent is None and document.is_main_entry()): document_parent = document
 		is_category = isinstance(document_parent, Category)
 
-		if (isinstance(document_parent, OwnableInstance) and document_parent.is_writable_for_session_user(session)):
+		if (isinstance(document_parent, OwnableInstance)):
 		#
-			document_parent_id = document_parent.get_id()
+			if (not document_parent.is_readable_for_session_user(session)): raise TranslatableError("core_access_denied", 403)
 
-			dsd_parameters = ({ "ccid": document_parent_id }
-			                  if (is_category) else
-			                  { "coid": did }
-			                 )
+			if (document_parent.is_writable_for_session_user(session)):
+			#
+				document_parent_id = document_parent.get_id()
 
-			Link.set_store("servicemenu",
-			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
-			               L10n.get("pas_http_contentor_document_new"),
-			               { "m": "contentor", "s": "document", "a": "new", "dsd": dsd_parameters },
-			               icon = "mini-default-option",
-			               priority = 3
-			              )
+				dsd_parameters = ({ "ccid": document_parent_id }
+				                  if (is_category) else
+				                  { "coid": did }
+				                 )
+
+				Link.set_store("servicemenu",
+				               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),
+				               L10n.get("pas_http_contentor_document_new"),
+				               { "m": "contentor", "s": "document", "a": "new", "dsd": dsd_parameters },
+				               icon = "mini-default-option",
+				               priority = 3
+				              )
+			#
 
 			if (is_category and document_parent.is_manageable_for_session_user(session)):
 			#
@@ -228,7 +239,19 @@ Action for "view"
 			#
 		#
 
-		document_data = document.get_data_attributes("id", "id_main", "title", "time_sortable", "sub_entries", "sub_entries_type", "content", "author_id", "author_ip", "time_published", "entry_type", "description")
+		document_data = document.get_data_attributes("id",
+		                                             "id_main",
+		                                             "title",
+		                                             "time_sortable",
+		                                             "sub_entries",
+		                                             "sub_entries_type",
+		                                             "content",
+		                                             "author_id",
+		                                             "author_ip",
+		                                             "time_published",
+		                                             "entry_type",
+		                                             "description"
+		                                            )
 
 		content = { "id": document_data['id'],
 		            "title": document_data['title'],

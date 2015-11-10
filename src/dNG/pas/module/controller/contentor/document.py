@@ -213,7 +213,12 @@ Action for "edit"
 
 			cid = (did if (document.is_main_entry()) else document_parent.get_id())
 
-			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onUpdated.{0}".format(did), "dNG.pas.contentor.Document.onUpdated", 1, category_id = cid, document_id = did)
+			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onUpdated.{0}".format(did),
+			                                 "dNG.pas.contentor.Document.onUpdated",
+			                                 1,
+			                                 category_id = cid,
+			                                 document_id = did
+			                                )
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(did))
 			target_iline = re.sub("\\_\\w+\\_\\_", "", target_iline)
@@ -239,7 +244,7 @@ Action for "edit"
 			                  }
 
 			self.response.init()
-			self.response.set_title(L10n.get("pas_http_contentor_document_edit"))
+			self.response.set_title(content['title'])
 			self.response.add_oset_content("core.form", content)
 		#
 	#
@@ -339,6 +344,8 @@ Action for "new"
 			with TransactionContext():
 			#
 				document.set_data_attributes(**document_data)
+				document.set_permission_session(session)
+				document.set_writable_if_logged_in()
 
 				if (isinstance(category, DataLinker)): category.add_entry(document)
 				document.save()
@@ -346,7 +353,12 @@ Action for "new"
 
 			did_d = document.get_id()
 
-			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onAdded.{0}".format(did_d), "dNG.pas.contentor.Document.onAdded", 1, category_id = oid, document_id = did_d)
+			DatabaseTasks.get_instance().add("dNG.pas.contentor.Document.onAdded.{0}".format(did_d),
+			                                 "dNG.pas.contentor.Document.onAdded",
+			                                 1,
+			                                 category_id = oid,
+			                                 document_id = did_d
+			                                )
 
 			target_iline = target_iline.replace("__id_d__", "{0}".format(did_d))
 			target_iline = re.sub("\\_\\_\\w+\\_\\_", "", target_iline)
@@ -372,7 +384,7 @@ Action for "new"
 			                  }
 
 			self.response.init()
-			self.response.set_title(L10n.get("pas_http_contentor_document_new"))
+			self.response.set_title(content['title'])
 			self.response.add_oset_content("core.form", content)
 		#
 	#
