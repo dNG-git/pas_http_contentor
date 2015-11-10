@@ -1,0 +1,24 @@
+<div class="pagecontent_contentor pagecontent_contentor_latest_sub_categories_list">
+	<div class="pagecontent_box pagecontent_box_infoblock">
+		<div>[rewrite:l10n]pas_http_contentor_sub_categories[/rewrite] <em>[rewrite:content]categories_count[/rewrite]</em></div>
+	</div>
+	<h1>[rewrite:content]title[/rewrite]</h1>
+[if:content:parent != ]
+[block:content:parent]datalinker.ParentBox.render[/block]
+[/if]
+[if:content:categories_list != ]
+[each:content:categories_list:category]
+	<div class="pagecontent_box pagecontent_box_bordered pagecontent_box_both_cleared">
+		<div class="pagecontent_box pagecontent_box_infoblock">
+			<div>[rewrite:l10n]pas_http_contentor_documents[/rewrite] <em>[rewrite:content]categories_list.category.sub_entries_count[/rewrite]</em></div>
+		</div>
+		<h2><a href="[rewrite:content]categories_list.category.link[/rewrite]">[rewrite:safe_content]categories_list.category.title[/rewrite]</a></h2>
+[if:content:categories_list.category.sub_entries_count != 0]
+[block:content:categories_list.category]output.Table.render[/block]
+[/if]
+	</div>
+[/each]
+[/if][if:content:categories_list == ]
+	<p><strong>[rewrite:l10n]pas_http_contentor_category_empty[/rewrite]</strong></p>
+[/if]
+</div>
