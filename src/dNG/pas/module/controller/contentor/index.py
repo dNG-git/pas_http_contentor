@@ -87,7 +87,7 @@ Action for "list"
 		try: category = Category.load_id(cid)
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_cid_invalid", 404, _exception = handled_exception)
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (session is not None): category.set_permission_session(session)
 
 		if (not category.is_readable()):
@@ -179,7 +179,7 @@ Action for "view"
 		try: document = Document.load_id(did)
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_did_invalid", 404, _exception = handled_exception)
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (session is not None): document.set_permission_session(session)
 
 		if (not document.is_readable()):
