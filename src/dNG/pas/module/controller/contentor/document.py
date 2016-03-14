@@ -165,7 +165,7 @@ Action for "edit"
 		try: document = _Document.load_id(did)
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_did_invalid", 404, _exception = handled_exception)
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (session is not None): document.set_permission_session(session)
 
 		if (not document.is_writable()): raise TranslatableError("core_access_denied", 403)
@@ -297,7 +297,7 @@ Action for "new"
 		try: category = Category.load_id(oid)
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_datalinker_oid_invalid", 404, _exception = handled_exception)
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (isinstance(category, OwnableInstance) and (not category.is_writable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
 
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
@@ -330,8 +330,7 @@ Action for "new"
 			document_description = InputFilter.filter_control_chars(form.get_value("cdescription"))
 			document_content = InputFilter.filter_control_chars(form.get_value("ccontent"))
 
-			document_data = { "time_sortable": time(),
-			                  "title": document_title,
+			document_data = { "title": document_title,
 			                  "tag": document_tag,
 			                  "author_ip": self.request.get_client_host(),
 			                  "content": FormTags.encode(document_content),
