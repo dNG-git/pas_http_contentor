@@ -79,7 +79,7 @@ Action for "latest_sub_documents"
 		try: category = _Category.load_id(cid)
 		except NothingMatchedException as handled_exception: raise TranslatableError("pas_http_contentor_cid_invalid", 404, _exception = handled_exception)
 
-		session = self.request.get_session()
+		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (session is not None): category.set_permission_session(session)
 
 		if (not category.is_readable()):
