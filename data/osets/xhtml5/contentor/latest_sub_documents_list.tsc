@@ -14,7 +14,7 @@
 		</div>
 		<h2><a href="[rewrite:content]categories_list.category.link[/rewrite]">[rewrite:safe_content]categories_list.category.title[/rewrite]</a></h2>
 [if:content:categories_list.category.sub_entries_count != 0]
-[block:content:categories_list.category]output.Table.render[/block]
+[block:content:categories_list.category]output.DatabaseTable.render[/block]
 [/if]
 	</div>
 [/each]
