@@ -35,10 +35,11 @@ from math import ceil
 
 from dNG.pas.data.hookable_settings import HookableSettings
 from dNG.pas.data.contentor.category import Category
-from dNG.pas.data.http.translatable_exception import TranslatableException
+from dNG.pas.data.http.translatable_error import TranslatableError
 from dNG.pas.data.xhtml.link import Link
 from dNG.pas.data.xhtml.page_links_renderer import PageLinksRenderer
 from dNG.pas.data.xhtml.oset.file_parser import FileParser
+from dNG.pas.runtime.value_exception import ValueException
 from .module import Module
 
 class DocumentList(Module):
@@ -63,8 +64,11 @@ Action for "render_simple"
 :since: v0.1.00
 		"""
 
-		if ("id" in self.context): self._render(self.context['id'])
-		else: raise TranslatableException("core_unknown_error", value = "Missing category ID to render")
+		if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
+
+		if ("id" not in self.context): raise ValueException("Missing category ID to render")
+
+		self._render(self.context['id'])
 	#
 
 	def _render(self, _id):
