@@ -64,8 +64,8 @@ Action for "index"
 :since: v0.1.00
 		"""
 
-		if (self.request.is_dsd_set('cdid')): self.execute_view()
-		elif (self.request.is_dsd_set('ccid') or Settings.is_defined("pas_http_contentor_category_default")): self.execute_list()
+		if (self.request.is_dsd_set("cdid")): self.execute_view()
+		elif (self.request.is_dsd_set("ccid") or Settings.is_defined("pas_http_contentor_category_default")): self.execute_list()
 	#
 
 	def execute_list(self):
