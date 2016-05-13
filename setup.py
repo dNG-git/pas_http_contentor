@@ -65,10 +65,12 @@ with TemporaryDirectory(dir = ".") as build_directory:
 	      version = get_version(),
 	      description = "Python Application Services",
 	      long_description = """"pas_http_contentor" adds XHTML rendered support for "pas_contentor" documents.""",
-	      author = "direct Netware Group",
+	      author = "direct Netware Group et al.",
 	      author_email = "web@direct-netware.de",
 	      license = "GPLv2+",
 	      url = "https://www.direct-netware.de/redirect?pas;http;contentor",
+
+	      platforms = [ "any" ],
 
 	      package_dir = { "": _build_path },
 	      packages = [ "dNG" ],
