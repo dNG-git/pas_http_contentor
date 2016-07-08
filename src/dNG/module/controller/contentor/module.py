@@ -31,49 +31,57 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-# pylint: disable=unused-argument
+from dNG.data.settings import Settings
+from dNG.data.translatable_exception import TranslatableException
+from dNG.database.connection import Connection
+from dNG.module.controller.abstract_http import AbstractHttp as AbstractHttpController
 
-from dNG.pas.data.http.virtual_config import VirtualConfig
-from dNG.pas.plugins.hook import Hook
-
-def register_plugin():
+class Module(AbstractHttpController):
 #
 	"""
-Register plugin hooks.
+Module for "contentor"
 
-:since: v0.1.00
+:author:     direct Netware Group et al.
+:copyright:  (C) direct Netware Group - All rights reserved
+:package:    pas.http
+:subpackage: contentor
+:since:      v0.2.00
+:license:    https://www.direct-netware.de/redirect?licenses;gpl
+             GNU General Public License 2
 	"""
 
-	Hook.register("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
-#
+	def __init__(self):
+	#
+		"""
+Constructor __init__(Module)
 
-def on_startup(params, last_return = None):
-#
-	"""
-Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
+:since: v0.2.00
+		"""
 
-:param params: Parameter specified
-:param last_return: The return value from the last hook called.
+		AbstractHttpController.__init__(self)
 
-:return: (mixed) Return value
-:since:  v0.1.00
-	"""
+		Settings.read_file("{0}/settings/pas_http_contentor.json".format(Settings.get("path_data")))
+	#
 
-	VirtualConfig.set_virtual_path("/contentor/view/", { "m": "contentor", "s": "index", "a": "index", "path_parameters": True })
-	return last_return
-#
+	def execute(self):
+	#
+		"""
+Execute the requested action.
 
-def unregister_plugin():
-#
-	"""
-Unregister plugin hooks.
+:since: v0.2.00
+		"""
 
-:since: v0.1.00
-	"""
+		# pylint: disable=broad-except
 
-	Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
+		try: database = Connection.get_instance()
+		except Exception as handled_exception:
+		#
+			if (self.log_handler is not None): self.log_handler.error(handled_exception, context = "pas_http_site")
+			raise TranslatableException("core_database_error", _exception = handled_exception)
+		#
+
+		with database: return AbstractHttpController.execute(self)
+	#
 #
 
 ##j## EOF

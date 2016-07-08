@@ -33,13 +33,14 @@ https://www.direct-netware.de/redirect?licenses;gpl
 
 from math import ceil
 
-from dNG.pas.data.hookable_settings import HookableSettings
-from dNG.pas.data.contentor.category import Category
-from dNG.pas.data.http.translatable_error import TranslatableError
-from dNG.pas.data.xhtml.link import Link
-from dNG.pas.data.xhtml.page_links_renderer import PageLinksRenderer
-from dNG.pas.data.xhtml.oset.file_parser import FileParser
-from dNG.pas.runtime.value_exception import ValueException
+from dNG.data.contentor.category import Category
+from dNG.data.hookable_settings import HookableSettings
+from dNG.data.http.translatable_error import TranslatableError
+from dNG.data.xhtml.link import Link
+from dNG.data.xhtml.page_links_renderer import PageLinksRenderer
+from dNG.data.xhtml.oset.file_parser import FileParser
+from dNG.runtime.value_exception import ValueException
+
 from .module import Module
 
 class DocumentList(Module):
@@ -47,11 +48,11 @@ class DocumentList(Module):
 	"""
 "DocumentList" creates a list of documents of different types.
 
-:author:     direct Netware Group
+:author:     direct Netware Group et al.
 :copyright:  (C) direct Netware Group - All rights reserved
 :package:    pas.http
 :subpackage: contentor
-:since:      v0.1.00
+:since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
@@ -61,7 +62,7 @@ class DocumentList(Module):
 		"""
 Action for "render_simple"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
@@ -76,7 +77,7 @@ Action for "render_simple"
 		"""
 List renderer
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		category = Category.load_id(_id)
@@ -118,7 +119,7 @@ List renderer
 Renders the document.
 
 :return: (str) Document XHTML
-:since:  v0.1.01
+:since:  v0.2.00
 		"""
 
 		document_data = document.get_data_attributes("id", "title", "time_sortable", "sub_entries", "sub_entries_type", "author_id", "author_ip", "time_published", "entry_type", "description")

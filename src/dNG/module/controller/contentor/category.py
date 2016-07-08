@@ -33,16 +33,17 @@ https://www.direct-netware.de/redirect?licenses;gpl
 
 from math import ceil
 
-from dNG.pas.data.hookable_settings import HookableSettings
-from dNG.pas.data.ownable_mixin import OwnableMixin as OwnableInstance
-from dNG.pas.data.settings import Settings
-from dNG.pas.data.contentor.category import Category as _Category
-from dNG.pas.data.http.translatable_error import TranslatableError
-from dNG.pas.data.text.input_filter import InputFilter
-from dNG.pas.data.text.l10n import L10n
-from dNG.pas.data.xhtml.link import Link
-from dNG.pas.data.xhtml.table.data_linker import DataLinker as DataLinkerTable
-from dNG.pas.database.nothing_matched_exception import NothingMatchedException
+from dNG.data.contentor.category import Category as _Category
+from dNG.data.hookable_settings import HookableSettings
+from dNG.data.http.translatable_error import TranslatableError
+from dNG.data.ownable_mixin import OwnableMixin as OwnableInstance
+from dNG.data.settings import Settings
+from dNG.data.text.input_filter import InputFilter
+from dNG.data.text.l10n import L10n
+from dNG.data.xhtml.link import Link
+from dNG.data.xhtml.table.data_linker import DataLinker as DataLinkerTable
+from dNG.database.nothing_matched_exception import NothingMatchedException
+
 from .module import Module
 
 class Category(Module):
@@ -50,11 +51,11 @@ class Category(Module):
 	"""
 Service for "m=contentor;s=category"
 
-:author:     direct Netware Group
+:author:     direct Netware Group et al.
 :copyright:  (C) direct Netware Group - All rights reserved
 :package:    pas.http
 :subpackage: contentor
-:since:      v0.1.01
+:since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
@@ -64,7 +65,7 @@ Service for "m=contentor;s=category"
 		"""
 Action for "latest_sub_documents"
 
-:since: v0.1.01
+:since: v0.2.00
 		"""
 
 		cid = InputFilter.filter_file_path(self.request.get_dsd("ccid", ""))
@@ -204,7 +205,7 @@ Returns content used for title cell rendering.
 :param column_definition: Column definition for the cell
 
 :return: (dict) Content used for rendering
-:since:  v0.1.01
+:since:  v0.2.00
 		"""
 
 		_return = content

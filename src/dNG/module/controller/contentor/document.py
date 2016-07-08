@@ -34,25 +34,26 @@ https://www.direct-netware.de/redirect?licenses;gpl
 from time import time
 import re
 
-from dNG.pas.controller.predefined_http_request import PredefinedHttpRequest
-from dNG.pas.data.data_linker import DataLinker
-from dNG.pas.data.ownable_mixin import OwnableMixin as OwnableInstance
-from dNG.pas.data.settings import Settings
-from dNG.pas.data.contentor.category import Category
-from dNG.pas.data.contentor.document import Document as _Document
-from dNG.pas.data.http.translatable_error import TranslatableError
-from dNG.pas.data.http.translatable_exception import TranslatableException
-from dNG.pas.data.tasks.database_proxy import DatabaseProxy as DatabaseTasks
-from dNG.pas.data.text.input_filter import InputFilter
-from dNG.pas.data.text.l10n import L10n
-from dNG.pas.data.xhtml.form_tags import FormTags
-from dNG.pas.data.xhtml.link import Link
-from dNG.pas.data.xhtml.notification_store import NotificationStore
-from dNG.pas.data.xhtml.form.form_tags_textarea_field import FormTagsTextareaField
-from dNG.pas.data.xhtml.form.processor import Processor as FormProcessor
-from dNG.pas.data.xhtml.form.text_field import TextField
-from dNG.pas.database.nothing_matched_exception import NothingMatchedException
-from dNG.pas.database.transaction_context import TransactionContext
+from dNG.controller.predefined_http_request import PredefinedHttpRequest
+from dNG.data.contentor.category import Category
+from dNG.data.contentor.document import Document as _Document
+from dNG.data.data_linker import DataLinker
+from dNG.data.http.translatable_error import TranslatableError
+from dNG.data.http.translatable_exception import TranslatableException
+from dNG.data.ownable_mixin import OwnableMixin as OwnableInstance
+from dNG.data.settings import Settings
+from dNG.data.tasks.database_proxy import DatabaseProxy as DatabaseTasks
+from dNG.data.text.input_filter import InputFilter
+from dNG.data.text.l10n import L10n
+from dNG.data.xhtml.form.form_tags_textarea_field import FormTagsTextareaField
+from dNG.data.xhtml.form.processor import Processor as FormProcessor
+from dNG.data.xhtml.form.text_field import TextField
+from dNG.data.xhtml.form_tags import FormTags
+from dNG.data.xhtml.link import Link
+from dNG.data.xhtml.notification_store import NotificationStore
+from dNG.database.nothing_matched_exception import NothingMatchedException
+from dNG.database.transaction_context import TransactionContext
+
 from .module import Module
 
 class Document(Module):
@@ -60,11 +61,11 @@ class Document(Module):
 	"""
 Service for "m=contentor;s=document"
 
-:author:     direct Netware Group
+:author:     direct Netware Group et al.
 :copyright:  (C) direct Netware Group - All rights reserved
 :package:    pas.http
 :subpackage: contentor
-:since:      v0.1.00
+:since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
@@ -77,7 +78,7 @@ Applies document form fields to given form instance.
 :param form: Form instance
 :param document: Document to get default data values from
 
-:since: v0.1.01
+:since: v0.2.00
 		"""
 
 		document_data = ({ "title": None, "tag": None, "content": None, "description": None }
@@ -126,7 +127,7 @@ Form validator that checks if the tag is unique if defined.
 :param validator_context: Form validator context
 
 :return: (str) Error message; None on success
-:since:  v0.1.00
+:since:  v0.2.00
 		"""
 
 		_return = None
@@ -146,7 +147,7 @@ Form validator that checks if the tag is unique if defined.
 		"""
 Action for "edit"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		did = InputFilter.filter_file_path(self.request.get_dsd("cdid", ""))
@@ -254,7 +255,7 @@ Action for "edit"
 		"""
 Action for "edit-save"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		self.execute_edit(self.request.get_type() == "POST")
@@ -265,7 +266,7 @@ Action for "edit-save"
 		"""
 Action for "new"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		# pylint: disable=star-args
@@ -393,7 +394,7 @@ Action for "new"
 		"""
 Action for "new-save"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		self.execute_new(self.request.get_type() == "POST")

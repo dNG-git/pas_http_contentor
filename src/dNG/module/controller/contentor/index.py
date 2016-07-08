@@ -31,15 +31,16 @@ https://www.direct-netware.de/redirect?licenses;gpl
 #echo(__FILEPATH__)#
 """
 
-from dNG.pas.data.ownable_mixin import OwnableMixin as OwnableInstance
-from dNG.pas.data.settings import Settings
-from dNG.pas.data.contentor.category import Category
-from dNG.pas.data.contentor.document import Document
-from dNG.pas.data.http.translatable_error import TranslatableError
-from dNG.pas.data.text.input_filter import InputFilter
-from dNG.pas.data.text.l10n import L10n
-from dNG.pas.data.xhtml.link import Link
-from dNG.pas.database.nothing_matched_exception import NothingMatchedException
+from dNG.data.contentor.category import Category
+from dNG.data.contentor.document import Document
+from dNG.data.http.translatable_error import TranslatableError
+from dNG.data.ownable_mixin import OwnableMixin as OwnableInstance
+from dNG.data.settings import Settings
+from dNG.data.text.input_filter import InputFilter
+from dNG.data.text.l10n import L10n
+from dNG.data.xhtml.link import Link
+from dNG.database.nothing_matched_exception import NothingMatchedException
+
 from .module import Module
 
 class Index(Module):
@@ -47,11 +48,11 @@ class Index(Module):
 	"""
 Service for "m=contentor"
 
-:author:     direct Netware Group
+:author:     direct Netware Group et al.
 :copyright:  (C) direct Netware Group - All rights reserved
 :package:    pas.http
 :subpackage: contentor
-:since:      v0.1.00
+:since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
 	"""
@@ -61,7 +62,7 @@ Service for "m=contentor"
 		"""
 Action for "index"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		if (self.request.is_dsd_set("cdid")): self.execute_view()
@@ -73,7 +74,7 @@ Action for "index"
 		"""
 Action for "list"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		cid = InputFilter.filter_file_path(self.request.get_dsd("ccid", ""))
@@ -168,7 +169,7 @@ Action for "list"
 		"""
 Action for "view"
 
-:since: v0.1.00
+:since: v0.2.00
 		"""
 
 		did = InputFilter.filter_file_path(self.request.get_dsd("cdid", ""))
