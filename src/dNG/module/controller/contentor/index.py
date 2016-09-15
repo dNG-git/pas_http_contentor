@@ -191,7 +191,7 @@ Action for "view"
 
 		if (self.response.is_supported("html_css_files")): self.response.add_theme_css_file("mini_default_sprite.min.css")
 
-		if (document.is_writable()):
+		if (document.is_manageable()):
 		#
 			Link.set_store("servicemenu",
 			               (Link.TYPE_RELATIVE_URL | Link.TYPE_JS_REQUIRED),

@@ -169,7 +169,7 @@ Action for "edit"
 		session = (self.request.get_session() if (self.request.is_supported("session")) else None)
 		if (session is not None): document.set_permission_session(session)
 
-		if (not document.is_writable()): raise TranslatableError("core_access_denied", 403)
+		if (not document.is_manageable()): raise TranslatableError("core_access_denied", 403)
 
 		document_parent = document.load_parent()
 		if (isinstance(document_parent, OwnableInstance) and (not document_parent.is_readable_for_session_user(session))): raise TranslatableError("core_access_denied", 403)
@@ -345,7 +345,7 @@ Action for "new"
 			#
 				document.set_data_attributes(**document_data)
 				document.set_permission_session(session)
-				document.set_writable_if_logged_in()
+				document.set_manageable_if_logged_in()
 
 				if (isinstance(category, DataLinker)): category.add_entry(document)
 				document.save()
