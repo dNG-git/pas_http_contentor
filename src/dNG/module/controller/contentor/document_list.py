@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 direct PAS
@@ -44,8 +43,7 @@ from dNG.runtime.value_exception import ValueException
 from .module import Module
 
 class DocumentList(Module):
-#
-	"""
+    """
 "DocumentList" creates a list of documents of different types.
 
 :author:     direct Netware Group et al.
@@ -55,91 +53,86 @@ class DocumentList(Module):
 :since:      v0.2.00
 :license:    https://www.direct-netware.de/redirect?licenses;gpl
              GNU General Public License 2
-	"""
+    """
 
-	def execute_render_simple(self):
-	#
-		"""
+    def execute_render_simple(self):
+        """
 Action for "render_simple"
 
 :since: v0.2.00
-		"""
+        """
 
-		if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
+        if (self._is_primary_action()): raise TranslatableError("core_access_denied", 403)
 
-		if ("id" not in self.context): raise ValueException("Missing category ID to render")
+        if ("id" not in self.context): raise ValueException("Missing category ID to render")
 
-		self._render(self.context['id'])
-	#
+        self._render(self.context['id'])
+    #
 
-	def _render(self, _id):
-	#
-		"""
+    def _render(self, _id):
+        """
 List renderer
 
 :since: v0.2.00
-		"""
+        """
 
-		category = Category.load_id(_id)
-		category_data = category.get_data_attributes("sub_entries", "entry_type")
+        category = Category.load_id(_id)
+        category_data = category.get_data_attributes("sub_entries", "entry_type")
 
-		if (category_data['entry_type'] == "simple"): limit_default = 20
-		else: limit_default = 20
+        if (category_data['entry_type'] == "simple"): limit_default = 20
+        else: limit_default = 20
 
-		hookable_settings = HookableSettings("dNG.pas.http.contentor.DocumentList.getLimit",
-		                                     id = _id,
-		                                     type = category_data['entry_type']
-		                                    )
+        hookable_settings = HookableSettings("dNG.pas.http.contentor.DocumentList.getLimit",
+                                             id = _id,
+                                             type = category_data['entry_type']
+                                            )
 
-		limit = hookable_settings.get("pas_http_contentor_list_{0}_document_limit".format(category_data['entry_type']),
-		                              limit_default
-		                             )
+        limit = hookable_settings.get("pas_http_contentor_list_{0}_document_limit".format(category_data['entry_type']),
+                                      limit_default
+                                     )
 
-		page = self.context.get("page", 1)
-		pages = (1 if (category_data['sub_entries'] == 0) else ceil(float(category_data['sub_entries']) / limit))
+        page = self.context.get("page", 1)
+        pages = (1 if (category_data['sub_entries'] == 0) else ceil(float(category_data['sub_entries']) / limit))
 
-		offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
+        offset = (0 if (page < 1 or page > pages) else (page - 1) * limit)
 
-		if ("sort_definition" in self.context): category.set_sort_definition(self.context['sort_definition'])
+        if ("sort_definition" in self.context): category.set_sort_definition(self.context['sort_definition'])
 
-		page_link_renderer = PageLinksRenderer({ "__request__": True }, page, pages)
-		page_link_renderer.set_dsd_page_key("cpage")
-		rendered_links = page_link_renderer.render()
+        page_link_renderer = PageLinksRenderer({ "__request__": True }, page, pages)
+        page_link_renderer.set_dsd_page_key("cpage")
+        rendered_links = page_link_renderer.render()
 
-		rendered_content = rendered_links
-		for document in category.get_sub_entries(offset, limit): rendered_content += self._render_document(document)
-		rendered_content += "\n" + rendered_links
+        rendered_content = rendered_links
+        for document in category.get_sub_entries(offset, limit): rendered_content += self._render_document(document)
+        rendered_content += "\n" + rendered_links
 
-		self.set_action_result(rendered_content)
-	#
+        self.set_action_result(rendered_content)
+    #
 
-	def _render_document(self, document):
-	#
-		"""
+    def _render_document(self, document):
+        """
 Renders the document.
 
 :return: (str) Document XHTML
 :since:  v0.2.00
-		"""
+        """
 
-		document_data = document.get_data_attributes("id", "title", "time_sortable", "sub_entries", "sub_entries_type", "author_id", "author_ip", "time_published", "entry_type", "description")
+        document_data = document.get_data_attributes("id", "title", "time_sortable", "sub_entries", "sub_entries_type", "author_id", "author_ip", "time_published", "entry_type", "description")
 
-		content = { "id": document_data['id'],
-		            "title": document_data['title'],
-		            "link": Link().build_url(Link.TYPE_RELATIVE_URL, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
-		            "author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
-		            "time_published": document_data['time_published'],
-		            "description": document_data['description']
-		          }
+        content = { "id": document_data['id'],
+                    "title": document_data['title'],
+                    "link": Link().build_url(Link.TYPE_RELATIVE_URL, { "m": "contentor", "dsd": { "cdid": document_data['id'] } }),
+                    "author": { "id": document_data['author_id'], "ip": document_data['author_ip'] },
+                    "time_published": document_data['time_published'],
+                    "description": document_data['description']
+                  }
 
-		if (document_data['time_published'] != document_data['time_sortable']): content['time_updated'] = document_data['time_sortable']
+        if (document_data['time_published'] != document_data['time_sortable']): content['time_updated'] = document_data['time_sortable']
 
-		parser = FileParser()
-		parser.set_oset(self.response.get_oset())
-		_return = parser.render("contentor.{0}_list_document".format(document_data['entry_type']), content)
+        parser = FileParser()
+        parser.set_oset(self.response.get_oset())
+        _return = parser.render("contentor.{0}_list_document".format(document_data['entry_type']), content)
 
-		return _return
-	#
+        return _return
+    #
 #
-
-##j## EOF

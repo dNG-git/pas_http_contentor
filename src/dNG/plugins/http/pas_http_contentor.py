@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-##j## BOF
 
 """
 direct PAS
@@ -37,20 +36,18 @@ from dNG.data.http.virtual_config import VirtualConfig
 from dNG.plugins.hook import Hook
 
 def register_plugin():
-#
-	"""
+    """
 Register plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.register("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
+    Hook.register("dNG.pas.http.Server.onStartup", on_startup)
+    Hook.register("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
 
 def on_startup(params, last_return = None):
-#
-	"""
+    """
 Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
 
 :param params: Parameter specified
@@ -58,22 +55,19 @@ Called for "dNG.pas.http.Server.onStartup" and "dNG.pas.http.Wsgi.onStartup"
 
 :return: (mixed) Return value
 :since:  v0.2.00
-	"""
+    """
 
-	VirtualConfig.set_virtual_path("/contentor/view/", { "m": "contentor", "s": "index", "a": "index", "path_parameters": True })
-	return last_return
+    VirtualConfig.set_virtual_path("/contentor/view/", { "m": "contentor", "s": "index", "a": "index", "path_parameters": True })
+    return last_return
 #
 
 def unregister_plugin():
-#
-	"""
+    """
 Unregister plugin hooks.
 
 :since: v0.2.00
-	"""
+    """
 
-	Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
-	Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
+    Hook.unregister("dNG.pas.http.Server.onStartup", on_startup)
+    Hook.unregister("dNG.pas.http.Wsgi.onStartup", on_startup)
 #
-
-##j## EOF
